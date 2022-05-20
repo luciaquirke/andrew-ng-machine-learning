@@ -25,8 +25,38 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 % Setup some useful variables
 m = size(X, 1);
          
+% the ones are multiplied with theta for a constant offset term
+X = [ones(m, 1) X];
+
+% each label is converted to an array of length num_labels with each array element corresponding to the row value in y set to 1 and all others to 0
+new_y = zeros(m, num_labels);
+% for each row in new_y, the value of the corresponding element in y is used to index the element in the new_y row that is set to 1
+for row = 1:m
+    new_y(row, y(row)) = 1;
+end
+y = new_y;
+
+% calculate hypothesis: a1 = X; a2 = sigmoid(Theta1 * a1); a3 = sigmoid(Theta2 * a2);
+% Theta1 size: 25 x 401. X size: m x 401
+% a2 size: m x 25
+a2 = sigmoid(X * transpose(Theta1));
+% same thing but add the constant node to Theta2
+% Theta1 size: 10 x 26. a2 size: m x 25
+% a3 size: m * 10
+a3 = sigmoid([ones(m, 1) a2] * transpose(Theta2));
+
+% a3 is the output of the final model layer, with m rows and 10 columns
+hypothesis = a3;
+
+size(hypothesis)
 % You need to return the following variables correctly 
 J = 0;
+
+for i = 1:m
+    example_cost = 1 / m * sum(-y(i, :) .* log(hypothesis(i, :)) - ((1 - y(i, :)) .* log(1 - hypothesis(i, :))));
+    J += example_cost;
+end
+
 Theta1_grad = zeros(size(Theta1));
 Theta2_grad = zeros(size(Theta2));
 
