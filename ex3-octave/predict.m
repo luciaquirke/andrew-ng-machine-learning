@@ -7,8 +7,16 @@ function p = predict(Theta1, Theta2, X)
 m = size(X, 1);
 num_labels = size(Theta2, 1);
 
+% Add ones to the X data matrix
+X = [ones(m, 1) X];
+
+% a2 is m x 25
+% a3 is m x 10
+a2 = sigmoid(X * transpose(Theta1));
+a3 = sigmoid([ones(m, 1) a2] * transpose(Theta2));
+
 % You need to return the following variables correctly 
-p = zeros(size(X, 1), 1);
+[M, p] = max(a3, [], 2); 
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: Complete the following code to make predictions using

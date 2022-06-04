@@ -24,46 +24,54 @@ Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):en
 
 % Setup some useful variables
 m = size(X, 1);
-         
-% the ones are multiplied with theta for a constant offset term
-X = [ones(m, 1) X];
 
-% each label is converted to an array of length num_labels with each array element corresponding to the row value in y set to 1 and all others to 0
-new_y = zeros(m, num_labels);
-% for each row in new_y, the value of the corresponding element in y is used to index the element in the new_y row that is set to 1
-for row = 1:m
-    new_y(row, y(row)) = 1;
-end
-y = new_y;
+% this is a hacky data-science style way to convert a vector of label numbers into a matrix where each row has an element of value 1 at the corresponding index.
+% it works by creating one of each possible row value ([0 0 0 0 0 0 0 0 0 1], [0 0 0 0 0 0 0 0 1 0] etc.) for a final 10 x 10 matrix, then using a vectorised array 
+% index to select those rows as needed to form the final m x 10 matrix.
+y_matrix = eye(num_labels)(y,:);
+y = y_matrix;
+
+% the ones are multiplied with theta for a constant offset term
+a1 = [ones(m, 1) X];
 
 % calculate hypothesis: a1 = X; a2 = sigmoid(Theta1 * a1); a3 = sigmoid(Theta2 * a2);
 % Theta1 size: 25 x 401. X size: m x 401
 % a2 size: m x 25
-a2 = sigmoid(X * transpose(Theta1));
+z2 = a1 * transpose(Theta1);
+a2 = sigmoid(z2);
+a2 = [ones(m, 1) a2];
+
 % same thing but add the constant node to Theta2
 % Theta1 size: 10 x 26. a2 size: m x 25
 % a3 size: m * 10
-a3 = sigmoid([ones(m, 1) a2] * transpose(Theta2));
+z3 = a2 * transpose(Theta2);
+a3 = sigmoid(z3);
 
 % a3 is the output of the final model layer, with m rows and 10 columns
 hypothesis = a3;
 
-size(hypothesis)
 % You need to return the following variables correctly 
 J = 0;
+Delta1 = 0;
+Delta2 = 0;
 
 for i = 1:m
     example_cost = 1 / m * sum(-y(i, :) .* log(hypothesis(i, :)) - ((1 - y(i, :)) .* log(1 - hypothesis(i, :))));
     J += example_cost;
 end
 
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
+regularization = lambda / (2 * m) * (sum(sum( Theta1(:, 2:end).^2 )) + sum(sum(Theta2(:, 2:end).^2)));
+J += regularization;
 
-% ====================== YOUR CODE HERE ======================
-% Instructions: You should complete the code by working through the
-%               following parts.
-%
+d3 = y - hypothesis;
+d2 = d3 * Theta2(:,2:end) .* sigmoidGradient(z2);
+Delta1 = Delta1 + transpose(d2) * a1;
+Delta2 = Delta2 + transpose(d3) * a2;
+
+% partial derivatives of J with respect to Theta1 and Theta2 respectively
+Theta1_grad = 1 / m .* Delta1;
+Theta2_grad = 1 / m .* Delta2;
+
 % Part 1: Feedforward the neural network and return the cost in the
 %         variable J. After implementing Part 1, you can verify that your
 %         cost function computation is correct by verifying the cost
@@ -93,29 +101,7 @@ Theta2_grad = zeros(size(Theta2));
 %
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-% -------------------------------------------------------------
-
-% =========================================================================
-
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
