@@ -5,22 +5,10 @@ function centroids = kMeansInitCentroids(X, K)
 %   used with the K-Means on the dataset X
 %
 
-% You should return this values correctly
 centroids = zeros(K, size(X, 2));
 
-% ====================== YOUR CODE HERE ======================
-% Instructions: You should set centroids to randomly chosen examples from
-%               the dataset X
-%
-
-
-
-
-
-
-
-
-% =============================================================
+rand_indices = randperm(size(X, 1));
+centroids = X(rand_indices(1:K), :);
 
 end
 

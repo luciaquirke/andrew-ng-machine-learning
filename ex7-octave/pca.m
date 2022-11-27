@@ -11,6 +11,9 @@ function [U, S] = pca(X)
 U = zeros(n);
 S = zeros(n);
 
+sigma = 1 / m * transpose(X) * X;
+[U, S, V] = svd(sigma);
+
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should first compute the covariance matrix. Then, you
 %               should use the "svd" function to compute the eigenvectors
@@ -18,14 +21,5 @@ S = zeros(n);
 %
 % Note: When computing the covariance matrix, remember to divide by m (the
 %       number of examples).
-%
-
-
-
-
-
-
-
-% =========================================================================
 
 end
