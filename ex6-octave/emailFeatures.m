@@ -10,6 +10,19 @@ n = 1899;
 % You need to return the following variables correctly.
 x = zeros(n, 1);
 
+% for i = 1 : length(word_indices)
+%     strIndex = word_indices(i);
+%     x(strIndex) = 1;
+% end
+
+x(word_indices) = x(word_indices) + 1 
+
+% strIndex = find(strcmp(vocabList, str));
+% if (length(strIndex)) > 0
+%     word_indices(end + 1) = strIndex(1);
+
+% x = vocabList
+
 % ====================== YOUR CODE HERE ======================
 % Instructions: Fill in this function to return a feature vector for the
 %               given email (word_indices). To help make it easier to 
