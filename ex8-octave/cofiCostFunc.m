@@ -13,33 +13,36 @@ Theta = reshape(params(num_movies*num_features+1:end), ...
 
 J = 1 / 2 * sum(
     ((X * transpose(Theta) - Y)(R == 1)).^2
-);
+    ) + lambda / 2 * sum(sum(
+        Theta.^2
+    )) + lambda / 2 * sum(sum(
+        X.^2
+    ));
 
 Theta_grad = zeros(size(Theta));
 X_grad = zeros(size(X));
 
-# user's coefficients
-size(Theta)
-# movie's coefficients
-size(X(1, :))
-# user's actual ratings
-size(Y(1, :))
-# whether the user has rated a movie 
-size(R(1, :))
-
-size(((X(1, :) * transpose(Theta) - Y(1, :))(R(1, :) == 1)))
-
-
-for i = 1 : num_users
-    Theta_grad(i) = sum(transpose((X(i, :) * transpose(Theta) - Y(i, :))(R(1, :) == 1)) * X(i, :));
-end
+% # user's coefficients
+% size(Theta)
+% % # movie's coefficients
+% size(X)
+% # user's actual ratings
+% size(Y)
+% # whether the user has rated a movie 
+% size(R)
 
 for i = 1 : num_movies
-    X_grad(i) = sum((X * transpose(Theta) - Y)(R == 1)) * Theta(i, :);
+    X_grad(i, :) = R(i, :) .* (X(i, :) * transpose(Theta) - Y(i, :)) * Theta;
+    regularization = lambda * X(i, :);
+    X_grad(i, :) = X_grad(i, :) + regularization;
 end
 
-size(X_grad)
-size(Theta_grad)
+for j = 1 : num_users
+    error = R(:, j) .* (X * transpose(Theta(j, :)) - Y(:, j));
+    Theta_grad(j, :) = (transpose(error) * X);
+    regularization = lambda * Theta(j, :);
+    Theta_grad(j, :) = Theta_grad(j, :) + regularization;
+end
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: Compute the cost function and gradient for collaborative
